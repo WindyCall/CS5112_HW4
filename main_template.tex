@@ -1,0 +1,395 @@
+\documentclass{hw_template}
+\usepackage{xcolor}
+\usepackage{listings}
+
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{float}
+
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{amsmath}% mathtools includes this so this is optional
+\usepackage{mathtools}
+
+% STUDENTS: Please fill these out with your information
+\newcommand{\name}{Fill Here}
+\newcommand{\netid}{Fill Here}
+\newcommand{\collaborators}{Fill Here}
+% / STUDENT
+
+\newcommand{\hwnum}{4}
+\newcommand{\duedate}{December 10, 11:59pm ET}
+\renewcommand{\title}{Randomized and Streaming Algorithms}
+\newcommand{\io}{\textbf{Code input and output format.} }
+
+\newcommand{\submission}{\textbf{Submission.}}
+
+\newtheorem{claim}{Claim}
+
+\lstset{
+  basicstyle=\ttfamily\scriptsize,    % Use a scriptsize typewriter font
+  breaklines=true,               % Break long lines
+  frame=single,                  % Frame the code block
+  numbers=left,                  % Add line numbers on the left
+  numberstyle=\tiny\color{gray}, % Make line numbers small and gray
+  keywordstyle=\color{blue},     % Color keywords blue
+  commentstyle=\color{green},    % Color comments green
+  stringstyle=\color{red},       % Color strings red
+}
+
+\begin{document}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\rank}{\textnormal{rank}}
+\newcommand{\Colon}{:}
+\newcommand{\dotdot}{..}
+\newcommand{\numinv}{\textrm{NI}}
+\newcommand{\numlargeinv}{\textrm{NLI}}
+\begin{problem}
+In a futuristic digital city, there are $n$ data hubs and $k$ service providers that need to be interconnected. As an input, you are given the number of data hubs and service providers and a dictionary \texttt{connections} showing which data hubs \textit{can be connected} to which service providers. You are also given \texttt{provider$\_$capacity} showing \textit{how many connections} each service provider can handle, and \texttt{preliminary\_assignment} which has the assignment for all the other hubs except the last one. These variables are shown in the example code snipped in Listing~\ref{lst2:codeblock_l}. In this problem, data hubs are labelled $0, 1,..., n-1$ and service providers are labelled $n, n+1,..., n+k-1$.
+\\
+\begin{lstlisting}[language=Python,caption={The python function call to be made to generate the graphs for Problems 2.a,b,c.},label={lst2:codeblock_l},captionpos=b]
+plan_city_a(num_data_hubs = 5,
+            num_service_providers = 5,
+            connections = {0: [5,7,8], 1: [5, 8], 2: [7,8,9], 3: [5, 6, 8, 9], 4: [5,6,7,8]},
+            provider_capacities = [0]*5 + [0,1,0,2,2],
+            preliminaryAssignment = {0: 8, 1: 8, 2: 9, 3: 9})
+\end{lstlisting}
+
+Your task is to ensure each data hub is connected to a service provider while considering capacity constraints. If the last hub ($n-1$) can't be connected, find out which service provider's capacities need to be increased by one for a feasible solution.
+
+To solve this, you will make use of a graph-based approach and the Ford-Fulkerson algorithm. In this graph, the source is a vertex from which flow starts, and the sink is the one where flow ends. The source will be connected to each data hub and each service provider to the sink. If a data hub can be connected to a service provider, there will be a directed edge between them in the graph. The capacity of the edges from the source to each data hub, as well as the capacity of each edge from a data hub to its possible service providers, is 1. The capacity from service providers to the sink is based on \texttt{provider$\_$capacity}. In this problem, constructing the residual graph correctly is extremely important. Therefore, part (a), (b) and (c) will focus on an incremental approach to building the correct graph. \textbf{Part (a), (b) and (c) are to be implemented in the function \texttt{plan\_city\_a} in \texttt{problem$\_$1/p1$\_$a.py}}. 
+
+Note that in the example shown in Listing~\ref{lst2:codeblock_l}, since there are only 5 service providers, we assign a capacity of `0' to the 5 data hubs for convenience in implementation. Thus \texttt{provider\_capacities} is to be described as [0]*\texttt{num\_data\_hubs} (5 in this example) + list(\texttt{service\_provider\_capacity}).
+
+\begin{subproblem}
+(\textit{5 points}) Generate the first part of the visualization graph showing connectivity from the source to data hubs to the service providers, based on the given connections dictionary. Implement this in \texttt{problem$\_$1/p1$\_$a.py}. Generate the graph using the input shown in Listing~\ref{lst2:codeblock_l} and provide the visualization with the caption (Problem 1.a.) in the write-up.
+\end{subproblem}
+
+\begin{subproblem}
+(\textit{5 points}) Extend the graph by connecting the service providers to the sink using the given provider$\_$capacity. Implement this in \texttt{problem$\_$1/p1$\_$a.py}. Generate the graph using the input shown in Listing~\ref{lst2:codeblock_l} and provide the visualization with the figure caption (Problem 1.b.) in the write-up.
+\end{subproblem}
+
+\begin{subproblem}
+(\textit{10 points}) Using the graphs from the previous parts, create the residual graph. This graph will help in determining the feasible flow of connections. Implement this in \linebreak \texttt{problem$\_$1/p1$\_$a.py}. Generate the graph using the input displayed in Listing~\ref{lst2:codeblock_l} and provide the visualization with the figure caption (Problem 1.c.) in the write-up.
+\end{subproblem}
+
+\begin{subproblem}
+(\textit{10 points})
+Implement the algorithm to determine if each data hub can be connected to a service provider. Return \texttt{`True'} if each data-hub can be connected to a service provider, otherwise return \texttt{`False'}. Implement this in \texttt{problem$\_$1/p1$\_$d.py}. Note that you can simply copy paste the code for the residual graph generation from \texttt{problem$\_$1/p1$\_$a.py} and focus on the rest of the algorithmic implementation.
+\end{subproblem}
+
+\begin{subproblem}
+(\textit{20 points})
+Extend the implementation to now provide the final connectivity map if it is feasible. If it is not feasible, the output should be a list of zeros for each data hub, followed by a list of $0$s and $1$s indicating which service providers capacities should be increased by one for a feasible solution. Implement this in \texttt{problem$\_$1/p1$\_$e.py}. Note that you can simply copy paste the code from \texttt{problem$\_$1/p1$\_$d.py} and focus on the rest of the algorithmic implementation.
+\end{subproblem}
+
+\begin{figure}
+    \centering
+    
+    \begin{subfigure}{.3\textwidth}
+        \centering
+        \fbox{\includegraphics[width=\linewidth]{figures/source_c_r_graph.png}}
+        \caption{Problem 1.a.}
+    \end{subfigure}%
+    \hfill
+    \begin{subfigure}{.3\textwidth}
+        \centering
+        \fbox{\includegraphics[width=\linewidth]{figures/sink_c_r_graph.png}}
+        \caption{Problem 1.b.}
+    \end{subfigure}%
+    \hfill
+    \begin{subfigure}{.3\textwidth}
+        \centering
+        \fbox{\includegraphics[width=\linewidth]{figures/residual_graph.png}}
+        \caption{Problem 1.c.}
+    \end{subfigure}
+    
+    \caption{Example generated graphs for the problems 1.a, 1.b and 1.c.}
+    \label{fig:three_images}
+\end{figure}
+
+
+\io You are to design a function called plan$\_$city with the following inputs:
+\begin{itemize}
+    \item \texttt{num$\_$data$\_$hubs($n$)}: An integer representing the number of data hubs.
+    \item \texttt{num$\_$service$\_$providers($k$)}: An integer representing the number of service providers.
+    \item \texttt{connections}: A dictionary representing potential connections between data hubs and service providers.
+    \item \texttt{provider$\_$capacities}: A list indicating the capacities of each service provider.
+    \item \texttt{preliminary\_assignment}: A dictionary where the keys are the data hubs and the values are the service providers they are initially assigned to. The last data hub ($n-1$) will not have a connection.
+\end{itemize}
+The output should be a list of integers representing the final connectivity of each data hub to its assigned service provider if a feasible assignment exists. If not feasible, the output should be \textbf{a list of zeros for each data hub followed by indicators (1 or 0) for each service provider}, where a 1 indicates the provider whose capacity should be increased.
+
+\textbf{Examples:}
+\begin{itemize}
+\item For num$\_$data$\_$hubs = 3, num$\_$service$\_$providers = 2, connections = \{0: [3,4], 1: [3], 2: [3]\}, provider$\_$capacities = [0]*num$\_$data$\_$hubs + [2, 1] (naturally zero for data hubs), and preliminary$\_$assignment = \{0: 3, 1: 3\}, a fully satisfying assignment exists, the valid assignment is [4, 3, 3].
+\item For num$\_$data$\_$hubs = 5, num$\_$service$\_$providers = 5, connections = \{0: [5, 7, 8], 1: [5, 8], 2: [7, 8, 9], 3: [5, 6, 8, 9], 4: [5, 6, 7, 8]\}, provider$\_$capacities = [0]*5 + [0, 1, 0, 2, 2], and \linebreak preliminary$\_$assignment = \{0: 8, 1: 8, 2: 9, 3: 9\}. A fully satisfying assignment exists, and the valid assignment is [8, 8, 9, 9, 6].
+\item For num$\_$data$\_$hubs = 5, num$\_$service$\_$providers = 5, connections = \{0: [5, 6], 1: [5, 7, 8, 9], 2: [5, 7, 9], 3: [5, 7, 8, 9], 4: [5, 6, 9]\}, provider$\_$capacities = [0]*5 + [0, 1, 3, 0, 0], and preliminary$\_$assignment = \{0: 6, 1: 7, 2: 7, 3: 7\}. No fully satisfying assignment exists, and thus the list of providers whose capacity should be increased should be [0] * num$\_$data$\_$hubs + [1, 1, 0, 0, 1] = [0, 0, 0, 0, 0, 1, 1, 0, 0, 1].
+\end{itemize}
+
+\begin{solution}
+    Please answer here.
+\end{solution}
+
+\end{problem}
+
+
+
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Problem 2?
+
+\begin{problem}
+% 
+In a charming town renowned for unique collectibles, a shopkeeper Samuel faced a challenge. He had received $n$ packages, each with distinct sizes, and needed to find boxes to match. Samuel had multiple suppliers denoted by $m$, each offering boxes of varying dimensions. His goal was to choose a supplier whose boxes would minimize the total wasted space, defined as the difference between the box and package sizes. Note that \textbf{one box can contain only one package}. Your task is to help Samuel choose a single supplier and use boxes from them such that the total wasted space is minimized. Let the size of the $i^{th}$ box be $b_i$ and the size of the $j^{th}$ package be $p_j$. For each package in a box, we define the space wasted to be $b_i - p_j$. The total wasted space is the sum of the space wasted in all the boxes.
+
+For example, if you have to fit packages with sizes \texttt{[2,3,5]} and the supplier offers boxes of sizes \texttt{[4, 8]}, you can fit the packages of size \texttt{2} and size \texttt{3} into two boxes of size \texttt{4} and the package with size \texttt{5} into a box of size \texttt{8}. This would result in a waste of \texttt{(4-2) + (4-3) + (8-5) = 6}.
+
+
+\textbf{(10 points)} Implement the function \texttt{linear\_search} in \texttt{problem\_2/p2\_a.py} that has a time-complexity of $\Theta(m \times n \times b)$ where $b$ denotes the average number of box types offered by each supplier.
+
+\textbf{(30 points)} Implement the function \texttt{binary\_search} in \texttt{problem\_2/p2\_b.py} that has a time-complexity of $\Theta(m \times \log (n) \times b)$ where $b$ denotes the average number of box types offered by each supplier.
+
+\io The package sizes are given as an integer array \texttt{packages}, \textbf{each with distinct sizes}, where \texttt{packages}[i] is the size of the $i^{th}$ package. The suppliers are given as 2D integer array boxes, where \texttt{boxes}[j] is an array of box sizes that the $j^{th}$ supplier produces. Return the \textbf{minimum total wasted space} by choosing the box supplier \textbf{optimally}, or -1 if it is \textbf{impossible} to fit all the packages inside boxes. 
+
+\textbf{Constraints:}
+\begin{flalign}
+    1 \leq n \leq 10^5 \nonumber \\
+    1 \leq m \leq 10^5 \nonumber \\
+    1 \leq \texttt{packages}[i] \leq 10^5 \nonumber \\
+    len(\texttt{boxes}[j]) \leq 10^5 \nonumber \\
+    \texttt{boxes}[j][k] \leq 10^5 \nonumber  \\
+    \text{The elements in } \texttt{boxes}[j] \text{ are \textbf{distinct}} \nonumber .
+\end{flalign}
+
+\textbf{Example 1:}
+\begin{itemize}
+    \item Input: \texttt{packages = [2,3,5]}, \texttt{boxes = [[4,8],[2,8]]}
+    \item Output: 6
+    \item Explanation: It is optimal to choose the first supplier, using two size-4 boxes and one size-8 box. The total waste is (4-2) + (4-3) + (8-5) = 6.
+\end{itemize}
+
+\textbf{Example 2:}
+\begin{itemize}
+    \item \texttt{packages = [2,3,5]}, \texttt{boxes = [[1,4],[2,3],[3,4]]}
+    \item Output: -1
+    \item Explanation: There is no box that the package of size 5 can fit in.
+\end{itemize}
+
+
+\textbf{Example 3:}
+\begin{itemize}
+    \item Input: \texttt{packages = [3,5,8,10,11,12]}, \texttt{boxes = [[12],[11,9],[10,5,14]]}
+    \item Output: 9
+    \item It is optimal to choose the third supplier, using two size-5 boxes, two size-10 boxes, and two size-14 boxes. The total waste is (5-3) + (5-5) + (10-8) + (10-10) + (14-11) + (14-12) = 9.
+\end{itemize}
+
+
+\begin{solution}
+    Please answer here.
+\end{solution}
+
+
+\end{problem}
+\newpage
+\begin{problem}
+
+Let’s say we want to count the number of times elements appear in a stream of data, $x_1, \dots, x_q$. A simple solution is to maintain a hash table that maps elements to their frequencies.
+
+This approach does not scale: Imagine having an extremely large stream consisting of mostly unique elements. For example, consider network monitoring (either for large network flows or anomalies), large service analytics (e.g. Amazon view/buy counts, Google search popularity), database analytics, etc. Even if we are only interested in the most important ones, this method has huge space requirements. Since we do not know for which items to store counts, our hash table will grow to contain billions of elements.
+
+The Count-Min Sketch, or CMS for short, is a data structure that solves this problem in an approximate way.
+
+\textbf{Approximate Counting with Hashing.}
+Given that we only have limited space availability, it would help if we could get away with not storing elements themselves but just their counts. To this end, let’s try to use only an array, with $w$ memory cells, for storing counts as shown below in Figure~\ref{fig:single-hash}.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{img/single_hash.png}
+    \caption{Counting with a single hash}
+    \label{fig:single-hash}
+\end{figure}
+
+With the help of a hash function h, we can implement a counting mechanism based on this array. To increment the count for element $x$, we hash it to get an index into the array. The cell at the respective index $h(x)$ is then incremented by 1.
+
+Concretely, this data structure has the following operations:
+
+\begin{itemize}
+    \item Initialization: $\forall i \in \{1, \dots, w\}$: count[$i$]=0.
+    \item Increment count (of element x): count[h(x)]+=1
+    \item Retrieve count (of element x): count[h(x)]
+\end{itemize}
+
+This approach has the obvious drawback of hash conflicts, which result in over-counting. We would need a lot of space to make collisions unlikely enough to get accurate counts. However, we at least do not need to explicitly store keys anymore.
+
+\textbf{More hash functions}
+
+Instead of just using one hash function, we could use $d$ different ones. These hash functions should be pairwise independent. To update a count, we then hash item a with all $d$ hash functions, and subsequently increment all indices we got this way. In case two hash functions map to the same index, we only increment its cell once.
+
+Unless we increase the available space, of course all this does for now is to just increase the number of hash conflicts. We will deal with that in the next section. For now let’s continue with this thought for a moment.
+
+If we now want to retrieve a count, there are up to $d$
+ different cells to look at. The natural solution is to take the minimum value of all of these. This is going to be the cell which had the fewest hash conflicts with other cells.
+$$\text{min}_{i=1}^d \text{count}[\text{h}_i(x)]$$
+While we are not fully there yet, this is the fundamental idea of the Count-Min Sketch. Its name stems from the process of retrieving counts by taking the minimum value.
+
+
+\textbf{Fewer hash conflicts}
+
+We added more hash functions but it is not evident whether this helps in any way. If we use the same amount of space, we definitely increase hash conflicts. In fact, this implies an undesirable property of our solution: Adding more hash functions increases potential errors in the counts.
+
+Instead of trying to reason about how these hash functions influence each other, we can design our data structure in a better way. To this end, we use a matrix of size $w \times d$. Rather than working on an array of length $w$, we add another dimension based on the number of hash functions as shown below in fig.~\ref{fig:multi-hash}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{img/multiple_hashes.png}
+    \caption{Counting with multiple hashes.}
+    \label{fig:multi-hash}
+\end{figure}
+
+Next, we change our update logic so that each function operates on its own row. This way, hash functions cannot conflict with another anymore. To increment the count of element $a$, we now hash it with a different function once for each row. The count is then incremented in exactly one cell per row.
+\begin{itemize}
+    \item Initialization: $\forall i \in \{1, \dots, d\}, j \in \{1, \dots, w\}:\text{count}[i, j] = 0$ 
+    \item Increment count (of element $x$):  $\forall i \in \{1, \dots, d\}:\text{count}[i,\text{h}_i(x)]$ += 1
+    \item Retrieve count (of element $x$): $\text{min}_{i=1}^d \text{count}[i, \text{h}_i(x)]$
+\end{itemize}
+
+
+This is the full CMS data structure. We call the underlying matrix a sketch.
+
+\begin{subproblem}
+\textbf{(10 points)} Your friend implemented the following hash functions for each row in the sketch: h$_i(x) = (x + a_i) \; \bmod \; w$ for $0 < i < d$ where $a_i$ is chosen randomly for each row, and $\bmod$ is the mod operation (sometimes written as $\%$). Is the choice of hash functions good or bad? Please justify your answer in 1 -- 2 sentences or provide a counter example.
+\end{subproblem}
+
+\begin{solution}
+    Please answer here
+\end{solution}
+
+\begin{subproblem}
+\textbf{(10 points)} Implement CMS in the function \texttt{count\_min\_sketch} in \texttt{problem\_3/p3\_b.py}. Given the vectors 
+$\mathbf{a} = [a_1, \dots, a_d]$, $\mathbf{b} = [b_1, \dots, b_d]$, a scalar $p$ implement the hash function h$_i(x) = ((a_ix + b_i) \; \bmod \; p) \; \bmod \; w$. Then, use this hash function on a stream of data to create the sketch matrix.
+
+\io The function  \texttt{count\_min\_sketch} takes in the following arguments: $\mathbf{a} = [a_1, \dots, a_d]$, $\mathbf{b} = [b_1, \dots, b_d]$ as vectors with positive entries, \texttt{w} and \texttt{p} as scalars, and a python generator function, \texttt{stream}, that produces a stream of data. The output of the function is the sketch matrix, of size $d \times w$.
+
+\textbf{Example}
+
+For $d=2, w=3$, given the vectors $\mathbf{a} = [1, 2]$, $\mathbf{b} = [3, 5]$, $p=100$, $w=3$, we get the following hash functions: $\text{h}_1(x) = ((x + 3) \; \% \; 100)\; \% \; 3$ , $\text{h}_2(x) = ((2x + 5) \; \% \; 100)\; \% \; 3$. For the stream of data $[10, 11, 10]$ the function \texttt{count\_min\_sketch} should return the following:\\
+\texttt{[[0, 2, 1], [1, 2, 0]]} which corresponds to the following sketch matrix:
+\begin{lstlisting}
+0, 2, 1
+1, 2, 0
+\end{lstlisting}
+
+\end{subproblem}
+
+\begin{solution}
+    Please answer here.
+\end{solution}
+
+\end{problem}
+
+
+\newpage
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Challenge
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Challenge
+\begin{challenge}
+You and your \(n\) friends have a collection of cards from the hit card game One! Each card has a numeric value, ranging from 1 to \(m\), and each card belongs to one of \(k\) colors, which we represent as numbers between 1 and \(k\) for convenience. So a card is a tuple \((x, c)\) where \(x \in \{1, \dots , m\}\) is its numeric value, and \(c \in \{1, \dots , k\}\) is its color.
+
+We can represent a regular 52-card deck by taking \(m = 13\) and \(k = 4\), with Ace representing the numeric value 1, Jack being 11, Queen being 12, and King being 13, and clubs being suit 1, diamonds being 2, hearts being 3 and spades being 4.
+
+To keep track of the number of cards you have over multiple decks, you and your friends decide to make stacks out of the cards. The stacks have to meet the following constraints:
+\begin{itemize}
+    \item Every stack has to start with the lowest card (value 1) and end with the highest (value \(m\)).
+    \item Within each stack, each card \((x, c)\) can be followed by card \((x', c')\) in the following cases:
+    \begin{itemize}
+        \item if the next card is of the same color and the next higher value (that is, \(c' = c\) and \(x' = x + 1\)),
+        \item if the next card is of any different color and the same value (that is, \(c'\) can be anything, and \(x' = x\)).
+    \end{itemize}
+\end{itemize}
+
+Each of you will get some cards (not necessarily the same number of cards each). You are seated around a table and you label the people clockwise from \(i = 1\) to \(n\). Turns are done in the following way:
+\begin{itemize}
+    \item Any person can start the next stack, by putting one or more cards (according to the rules described above).
+    \item Once the stack has been started by person \(i\), you take turns in increasing circular order placing cards on the stack following the rules described above (so the next person to place a card will be \((i + 1) \mod n\)).
+    \item You and your friends continue taking turns this way until the stack is complete.
+    \item Each person can play multiple cards, but at least one card must be played each turn.
+\end{itemize}
+
+Naturally, each card can only be part of one stack.
+
+\io You are to design a function called cards\_game with the following inputs:
+\begin{itemize}
+    \item m, n and k correspond to the range of the cards numeric value (1,..., m), the number of friends (n) and the number of colors (k).
+    \item counts is a dictionary where for each 'friend' as the dictionary key, we have a tuple (a, b) indicating the cards numeric value and color respectively.
+\end{itemize}
+
+\textbf{Example:}
+
+Let \(m = 3\), \(k = 2\) and \(n = 3\), and suppose you and your friends have the following cards:
+
+Person 1: \((1,2)\), \((3,2)\)
+
+Person 2: \((1,1)\), \((2,1)\), \((2,2)\)
+
+Person 3: \((2,2)\), \((3,2)\)
+
+Thus, the function call would be: 
+
+\begin{lstlisting}[language=Python,caption={The python function call to be made to generate the graphs for Problems 2.a,b,c.},captionpos=b]
+cards_game(m=3, k=2, n=3, counts = {1: [(1,2),(3,2)], 2: [(1,1), (2,1), (2,2)], 3: [(2,2), (3,2)]})
+\end{lstlisting}
+
+Then we can make two stacks:
+\begin{itemize}
+    \item Person 1 places \((1,2)\); person 2 places \((2,2)\); person 3 places \((3,2)\)
+    \item Person 2 places \((1,1)\), \((2,1)\); person 3 places \((2,2)\); person 1 places \((3,2)\).
+\end{itemize}
+
+For the following input:
+
+Person 1: \((1,2)\), \((2,2)\), \((2,2)\), \((3,2)\)
+
+Person 2: \((1,1)\), \((2,1)\)
+
+Person 3: \((3,2)\)
+
+
+The function call would be: 
+
+\begin{lstlisting}[language=Python,caption={The python function call to be made to generate the graphs for Problems 2.a,b,c.},captionpos=b]
+cards_game(m=3, k=2, n=3, counts = {
+                    1: [(1,2), (2,2), (2,2), (3,2)],
+                    2: [(1,1), (2,1)],
+                    3: [(3,2)]})
+\end{lstlisting}
+
+Only one stack is possible.
+
+Given the cards held by you and each of your friends (where not all possible cards are necessarily present, and there may also be duplicates), implement a polynomial-time algorithm to find out the maximum number of stacks you can create from your cards. Implement it in  \texttt{challenge$\_$1/cards$\_$a.py}.
+
+\textbf{A little help to get you started:}
+\begin{itemize}
+    \item Our current topic is network flows, so think about whether you can reduce the stated problem to the maximum flow problem.
+    \item Setting up good notation to express what you want to achieve is a good first step to help you think about this! Because of the rules of the game, it seems sensible to represent a card as \((i, x, c)\) where \(i\) is the person holding the card, \(x\) is the card’s value, and \(c\) is the card’s suit. What can you say about a card \((i', x', c')\) if it is possible to place it on top of \((i, x, c)\)?
+\end{itemize}
+
+\begin{solution}
+
+Please submit functional code. No written component for this problem.
+\end{solution}
+
+\end{challenge}
+
+
+
+
+\end{document}
