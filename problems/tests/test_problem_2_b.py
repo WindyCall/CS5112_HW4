@@ -1,4 +1,6 @@
 import unittest
+import sys
+sys.path.append("..")
 
 from problem_2.p2_b import binary_search
 
