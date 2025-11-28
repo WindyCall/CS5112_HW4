@@ -82,8 +82,8 @@ class TestProblem1(unittest.TestCase):
             "./test_files_p1/test_1_in.txt",
             "./test_files_p1/test_2_in.txt",
             "./test_files_p1/test_3_in.txt",
-            # "./test_files_p1/test_4_in.txt",
-            # "./test_files_p1/test_5_in.txt",
+            "./test_files_p1/test_4_in.txt",
+            "./test_files_p1/test_5_in.txt",
         ]
         for input_file in input_files:
             self.assertEqual(read_input(input_file, plan_city_e, type='c'), True)
