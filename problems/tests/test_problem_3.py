@@ -18,7 +18,7 @@ class TestProblem3(unittest.TestCase):
                 count_min_sketch(a=test[0], b=test[1], p=test[2], w=test[3], stream=iter(test[4])), ans)
 
     def test_complex(self):
-        with open("tests/inputs/p3_inputs.json", "rt") as f:
+        with open("./inputs/p3_inputs.json", "rt") as f:
             test_problems = json.load(f)
 
         for test in test_problems:
